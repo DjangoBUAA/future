@@ -1,0 +1,32 @@
+param n,integer,>=0;
+param s,integer,>=0;
+param t,integer,>=0;
+param M,integer,>=0;
+
+set V := 0..n; 
+set P within V;
+
+set A within V cross V;
+
+param c{(i, j) in A},integer,>=1,<=20;
+
+var x{(i, j) in A}, binary;
+var pi{i in V}, >=0;
+
+minimize obj : sum {(u,v) in A} c[u,v]*x[u,v];
+
+s.t.
+
+second1{v in V: v = s}: (sum{(i,v) in A} x[i,v]) - (sum{(v,j) in A} x[v,j])=-1; 
+second2{v in V: v = t}: (sum{(i,v) in A} x[i,v]) - (sum{(v,j) in A} x[v,j]) = 1;
+second3{v in V: v <> s and v <> t}: (sum{(i,v) in A} x[i,v]) - (sum{(v,j) in A} x[v,j]) = 0; 
+
+third{v in P}: sum{(u,v) in A} x[u,v]=1; 
+thirteenth{(u,v) in A}: (pi[v] - pi[u])<=c[u,v]+M*(1-x[u,v]);
+fourteenth{(u,v) in A}: (pi[u] - pi[v])>=c[u,v]-M*(1-x[u,v]);
+#fifteenth: pi[1]=0;                                                      
+
+solve;
+display  sum {(u,v) in A} c[u,v]*x[u,v];
+#display  {(i,j) in A} x[i,j];
+end;
